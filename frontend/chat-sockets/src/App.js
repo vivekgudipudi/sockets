@@ -11,9 +11,32 @@ function App() {
   const [message, setMessage] = useState("");
   const [chat, setChat] = useState([]);
 
+  const emojiSet = {
+    hey: "👋",
+    lol: "😂",
+    like: "❤️",
+    congratulations: "🎉",
+  };
+
   useEffect(() => {
     socket.on("chat", (payload) => setChat([...chat, payload]));
   });
+
+  const replaceMatchingWords = (string, emojiObj) => {
+    const wordsToReplace = Object.keys(emojiObj);
+
+    const replacedString = string
+      .split(" ")
+      .map((word) => {
+        if (wordsToReplace.includes(word)) {
+          return emojiObj[word];
+        }
+        return word;
+      })
+      .join(" ");
+
+    return replacedString;
+  };
 
   const sendMsg = (e) => {
     e.preventDefault();
@@ -26,7 +49,8 @@ function App() {
         <h1>chat app</h1>
         {chat.map((payload, index) => (
           <p key={index}>
-            {payload.userName}: {payload.message}
+            {payload.userName}:{" "}
+            {replaceMatchingWords(payload.message, emojiSet)}
           </p>
         ))}
         <form onSubmit={sendMsg}>
